@@ -24,10 +24,11 @@ namespace ERPAjaxIslemleri.Controllers
         [HttpGet]
         public JsonResult CheckTckn(string tckn)
         {
-            var result = _context.Kisiler.Any(x => x.Tckn == tckn);
+            var result = _context.Kisiler.FirstOrDefault(x => x.Tckn == tckn);
             return Json(new
             {
-                success = result
+                success = result != null,
+                data = result
             }, JsonRequestBehavior.AllowGet);
         }
 
@@ -36,8 +37,18 @@ namespace ERPAjaxIslemleri.Controllers
         {
             if (!ModelState.IsValid)
             {
-
-                return Json(new { success = false });
+                string msg = "";
+                foreach (var modelStateValue in ModelState.Values)
+                {
+                    if (modelStateValue.Errors.Any())
+                    {
+                        foreach (var error in modelStateValue.Errors)
+                        {
+                            msg += $"{error.ErrorMessage}";
+                        }
+                    }
+                }
+                return Json(new { success = false, message = msg });
             }
 
             var item = new Kisi()

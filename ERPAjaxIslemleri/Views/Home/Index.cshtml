@@ -10,7 +10,7 @@
 
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        <div class="form-group">
+        <div class="form-group" id="formvalid">
             <label for="txttc">TCKN</label>
             <input type="text" class="form-control" id="txttc" placeholder="TCKN">
         </div>
@@ -26,28 +26,44 @@
             <input type="button" class="btn btn-success" value="Kaydet" id="btnkaydet" />
         </div>
     </div>
+   
 </div>
 
 @section scripts
 {
     <script>
+        var gecerliMi = false;
         $(function () {
             $("#txttc").blur(function() {
                 //console.log(this.value);
                 $.ajax({
                     url: '@Url.Action("CheckTckn")' + "?tckn=" + this.value,
                     method: 'GET'
-                }).done(function(response) {
+                }).done(function (response) {
                     console.log(response);
+                    gecerliMi = response.success;
+                    if (gecerliMi) {
+                        $("#formvalid").attr("class", "form-group has-success");
+                        $("#txtad").val(response.data.Ad);
+                        $("#txtsoyad").val(response.data.Soyad);
+                    } else {
+                        $("#formvalid").attr("class", "form-group has-error");
+                    }
                 });
             });
-            $("#btnkaydet").click(function() {
+            $("#btnkaydet").click(function () {
                 var model = {
                     Ad: $("#txtad").val(),
                     Soyad: $("#txtsoyad").val(),
                     Tckn: $("#txttc").val()
                 }
-                //console.log(model);
+                $.ajax({
+                    url: '@Url.Action("AddKisi")',
+                    method: "post",
+                    data: model
+                }).done(function(response) {
+                    console.log(response);
+                });
             });
         });
     </script>
